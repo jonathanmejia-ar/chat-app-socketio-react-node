@@ -1,6 +1,6 @@
 # Chat App
 
-Realtime chat app with websockets using Node.js, Express and Socket.io with React on the frontend
+Realtime chat app with websockets using React, Node.js, Express and Socket.io.
 
 ## Usage
 
