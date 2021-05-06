@@ -9,7 +9,7 @@ const io = socketio(server, {
         origin: "*",
     }
 });
-const { joinRoom, leaveRoom, gerRoomUsers } = require('./users')
+const { joinRoom, leaveRoom, getRoomUsers } = require('./users')
 
 io.on('connection', (socket) => {
 
@@ -18,7 +18,7 @@ io.on('connection', (socket) => {
         currentUser = joinRoom(socket.id, name, room);
         socket.join(currentUser.room)
         socket.to(currentUser.room).emit('messages', { name: currentUser.name, message: `has joined the chat ${currentUser.room}` });
-        const roomUsers = gerRoomUsers(currentUser.room);
+        const roomUsers = getRoomUsers(currentUser.room);
         io.to(currentUser.room).emit('users-online', roomUsers);
     });
 
@@ -34,7 +34,7 @@ io.on('connection', (socket) => {
     socket.on('disconnect', () => {
         if (currentUser) {
             leaveRoom(currentUser.id);
-            const roomUsers = gerRoomUsers(currentUser.room);
+            const roomUsers = getRoomUsers(currentUser.room);
             io.to(currentUser.room).emit('users-online', roomUsers);
             socket.to(currentUser.room).emit('user-typing', '');
             io.to(currentUser.room).emit('messages', { name: currentUser.name, message: `has left the chat` });

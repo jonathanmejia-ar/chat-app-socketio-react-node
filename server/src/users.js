@@ -10,7 +10,7 @@ const leaveRoom = (id) => {
     users = users.filter(user => user.id !== id);
 };
 
-const gerRoomUsers = (room) => {
+const getRoomUsers = (room) => {
     const roomUsers = users.filter(user => user.room === room);
     return roomUsers;
 };
@@ -23,6 +23,6 @@ const getCurrentUser = (id) => {
 module.exports = {
     joinRoom,
     leaveRoom,
-    gerRoomUsers,
+    getRoomUsers,
     getCurrentUser
 };
