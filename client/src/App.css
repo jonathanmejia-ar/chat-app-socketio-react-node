@@ -22,6 +22,7 @@
 .typing {
   position: absolute;
   bottom: 0;
+  margin-left: 4px;
   color: rebeccapurple;
 }
 

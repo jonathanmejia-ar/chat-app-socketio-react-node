@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from 'react'
 import socket from './Socket'
 import '../App.css';
 
-const Chat = ({ name }) => {
+const Chat = ({ name, room }) => {
 
     const [message, setMessage] = useState("");
     const [messages, setMessages] = useState([]);
@@ -10,8 +10,8 @@ const Chat = ({ name }) => {
     const [users, setUsers] = useState([]);
 
     useEffect(() => {
-        socket.emit('connected', name);
-    }, [name]);
+        socket.emit('connected', name, room);
+    }, [name, room]);
 
     useEffect(() => {
         socket.on('users-online', (users) => {
@@ -63,16 +63,16 @@ const Chat = ({ name }) => {
                         </div>
                     ))}
                     {userTyping && (
-                        <div className="typing">
+                        <p className="typing">
                             {`${userTyping} is typing...`}
-                        </div>
+                        </p>
                     )}
                     <div ref={divRef}></div>
                 </div>
                 <div className="users-online">
                     <span style={{ fontWeight: '700' }}>Users Online</span>
                     <ul>
-                        {users.map((user, index) => (<li key={index}> {user}</li>))}
+                        {users.map((user, index) => (<li key={index}> {user.name}</li>))}
                     </ul>
                 </div>
             </div>

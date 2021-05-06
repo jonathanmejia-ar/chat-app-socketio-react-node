@@ -9,33 +9,36 @@ const io = socketio(server, {
         origin: "*",
     }
 });
-
-let users = [];
+const { joinRoom, leaveRoom, gerRoomUsers } = require('./users')
 
 io.on('connection', (socket) => {
-    let username;
 
-    socket.on('connected', (name) => {
-        username = name;
-        socket.broadcast.emit('messages', { name: username, message: 'has joined the chat' });
-        users.push(name)
-        io.emit('users-online', users);
+    let currentUser;
+    socket.on('connected', (name, room) => {
+        currentUser = joinRoom(socket.id, name, room);
+        socket.join(currentUser.room)
+        socket.to(currentUser.room).emit('messages', { name: currentUser.name, message: `has joined the chat ${currentUser.room}` });
+        const roomUsers = gerRoomUsers(currentUser.room);
+        io.to(currentUser.room).emit('users-online', roomUsers);
     });
 
     socket.on('message', (name, message) => {
-        io.emit('messages', { name, message });
+        io.to(currentUser.room).emit('messages', { name, message });
     });
 
 
     socket.on('typing', (name) => {
-        socket.broadcast.emit('user-typing', name);
+        socket.to(currentUser.room).emit('user-typing', name);
     });
 
     socket.on('disconnect', () => {
-        users = users.filter(user => user !== username);
-        io.emit('users-online', users);
-        socket.broadcast.emit('user-typing', '');
-        io.emit('messages', { name: username, message: `has left the chat` });
+        if (currentUser) {
+            leaveRoom(currentUser.id);
+            const roomUsers = gerRoomUsers(currentUser.room);
+            io.to(currentUser.room).emit('users-online', roomUsers);
+            socket.to(currentUser.room).emit('user-typing', '');
+            io.to(currentUser.room).emit('messages', { name: currentUser.name, message: `has left the chat` });
+        }
     });
 
 });
