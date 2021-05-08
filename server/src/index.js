@@ -2,6 +2,7 @@ const express = require('express');
 const http = require('http');
 const app = express();
 const server = http.createServer(app);
+const moment = require('moment');
 
 const socketio = require('socket.io');
 const io = socketio(server, {
@@ -16,16 +17,17 @@ io.on('connection', (socket) => {
     let currentUser;
     socket.on('connected', (name, room) => {
         currentUser = joinRoom(socket.id, name, room);
-        socket.join(currentUser.room)
-        socket.to(currentUser.room).emit('messages', { name: currentUser.name, message: `has joined the chat ${currentUser.room}` });
+        socket.join(currentUser.room);
+        const time = moment().format('h:mm:ss');
+        socket.to(currentUser.room).emit('messages', { name: currentUser.name, message: `Has joined the chat ${currentUser.room}`, time });
         const roomUsers = getRoomUsers(currentUser.room);
         io.to(currentUser.room).emit('users-online', roomUsers);
     });
 
     socket.on('message', (name, message) => {
-        io.to(currentUser.room).emit('messages', { name, message });
+        const time = moment().format('h:mm:ss');
+        io.to(currentUser.room).emit('messages', { name, message, time });
     });
-
 
     socket.on('typing', (name) => {
         socket.to(currentUser.room).emit('user-typing', name);
@@ -37,7 +39,8 @@ io.on('connection', (socket) => {
             const roomUsers = getRoomUsers(currentUser.room);
             io.to(currentUser.room).emit('users-online', roomUsers);
             socket.to(currentUser.room).emit('user-typing', '');
-            io.to(currentUser.room).emit('messages', { name: currentUser.name, message: `has left the chat` });
+            const time = moment().format('h:mm:ss');
+            io.to(currentUser.room).emit('messages', { name: currentUser.name, message: `Has left the chat`, time });
         }
     });
 
