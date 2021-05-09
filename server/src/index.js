@@ -19,7 +19,7 @@ io.on('connection', (socket) => {
         currentUser = joinRoom(socket.id, name, room);
         socket.join(currentUser.room);
         const time = moment().format('h:mm:ss');
-        socket.to(currentUser.room).emit('messages', { name: currentUser.name, message: `Has joined the chat ${currentUser.room}`, time });
+        socket.to(currentUser.room).emit('messages', { name: currentUser.name, message: `Has joined the room`, time });
         const roomUsers = getRoomUsers(currentUser.room);
         io.to(currentUser.room).emit('users-online', roomUsers);
     });
@@ -40,7 +40,7 @@ io.on('connection', (socket) => {
             io.to(currentUser.room).emit('users-online', roomUsers);
             socket.to(currentUser.room).emit('user-typing', '');
             const time = moment().format('h:mm:ss');
-            io.to(currentUser.room).emit('messages', { name: currentUser.name, message: `Has left the chat`, time });
+            io.to(currentUser.room).emit('messages', { name: currentUser.name, message: `Has left the room`, time });
         }
     });
 
