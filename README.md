@@ -1,6 +1,6 @@
 # Chat App
 
-Realtime chat app with websockets using React, Node.js, Express and Socket.io.
+Realtime chat app with websockets using React with Chakra UI, Node.js, Express and Socket.io.
 
 ## Usage
 
