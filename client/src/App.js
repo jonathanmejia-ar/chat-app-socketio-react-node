@@ -1,4 +1,4 @@
-import { Button, Flex, Heading, Input, Select, Stack, useColorMode, useColorModeValue } from '@chakra-ui/react';
+import { Button, Heading, Input, Select, Stack } from '@chakra-ui/react';
 import { useState } from 'react';
 import './App.css';
 import Chat from './components/Chat';
@@ -19,18 +19,15 @@ function App() {
 
   const handleSelectRoom = () => {
     console.log(room);
-  }
-
-  const { toggleColorMode } = useColorMode();
-  const formBackground = useColorModeValue("blue.100", "gray.700");
+  };
 
   return (
     <div className="App">
       {
         loggedIn ? (<Chat name={user} room={room} />) : (
           <form onSubmit={login}>
-            <Flex height="100vh" alignItems="center" justifyContent="center">
-              <Flex direction="column" background={formBackground} p={12} rounded={6}>
+            <Stack height="100vh" alignItems="center" justifyContent="center">
+              <Stack direction="column" background="gray.700" p={12} rounded={6} spacing={3}>
                 <Heading mb={6}>Join Chat Room</Heading>
                 <Input placeholder="Nickname" variant="filled" mb={3} type="text" value={user} onChange={e => setUser(e.target.value)} />
                 <Stack marginBottom="3">
@@ -41,9 +38,8 @@ function App() {
                   </Select>
                 </Stack>
                 <Button mb={6} colorScheme="messenger" onClick={login}>Join</Button>
-                <Button onClick={toggleColorMode}> Toggle Color Mode</Button>
-              </Flex>
-            </Flex>
+              </Stack>
+            </Stack>
           </form>
         )
       }
