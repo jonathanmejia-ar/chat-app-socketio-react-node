@@ -1,16 +1,19 @@
-import React, { useEffect, useState, useRef } from 'react';
-import { Badge, Box, Button, Flex, Heading, List, ListIcon, ListItem, Stack, Text, Textarea } from '@chakra-ui/react';
-import { FiSend } from "react-icons/fi";
-import { FaUser } from "react-icons/fa";
+import React, { useEffect, useState, useRef, useMemo } from 'react';
+import { Badge, Box, Button, Heading, IconButton, Input, InputGroup, InputRightElement, List, ListIcon, ListItem, Stack, Text, useBreakpointValue } from '@chakra-ui/react';
+import { FaUser, FaRegSmile } from "react-icons/fa";
+import { IoSend } from "react-icons/io5";
 import socket from './Socket';
 import '../App.css';
+import useWindowDimensions from '../hooks/useWindowDimensions';
+import chatSound from '../assets/sounds/sound.mp3';
 
 const Chat = ({ name, room }) => {
-
     const [message, setMessage] = useState("");
     const [messages, setMessages] = useState([]);
     const [userTyping, setUserTyping] = useState('');
     const [users, setUsers] = useState([]);
+    const { width: windowSizeWidth } = useWindowDimensions();
+    const notiSound = useMemo(() => new Audio(chatSound), []);
 
     useEffect(() => {
         socket.emit('connected', name, room);
@@ -25,10 +28,11 @@ const Chat = ({ name, room }) => {
     useEffect(() => {
         socket.on('messages', msg => {
             setMessages([...messages, msg]);
-        })
+            if (msg.name !== name) notiSound.play();
+        });
 
         return () => { socket.off() };
-    }, [messages]);
+    }, [messages, name, notiSound]);
 
     useEffect(() => {
         if (message.length !== 0) {
@@ -44,10 +48,11 @@ const Chat = ({ name, room }) => {
         });
     });
 
+
     const divRef = useRef(null);
     useEffect(() => {
         divRef.current.scrollIntoView({ behavior: 'smooth' });
-    })
+    });
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -56,24 +61,32 @@ const Chat = ({ name, room }) => {
         setMessage('');
     };
 
+    //validate if it's my message
+    const myMsg = (msg) => msg.name === name;
+    //responsive breakpoint
+    const breakpointSmMd = useBreakpointValue({ base: "sm", md: "md" })
+
     return (
-        <>
-            <Box d="flex" w="100%" h="75vh" p={4} color="white" position="relative">
-                <Stack direction="row" spacing={3} w="100%" justifyContent="center">
-                    <Flex direction="column" maxWidth="700px" width="100%">
-                        <Heading mb={6}> Chat {room}</Heading>
-                        <Box bg="gray.700" w="100%" h="100%" p={4} color="white" borderRadius={10}>
-                            <Stack spacing={3} direction="column" padding={2} overflowY="auto" minHeight="50vh" maxHeight="50vh">
+        <Box w="100%" height="100vh">
+            <Box d="flex" w="100%" h="90vh" p={4} color="white" position="relative">
+                <Stack direction="row" spacing={3} w="100%">
+                    <Stack direction="column" width="100%">
+                        <Stack direction="row">
+                            <Stack flex={1} height="100%">
+                                <Heading ml={1} fontSize={{ base: "24px", sm: "18px", md: "20px", lg: "22px" }}>{room} Room</Heading>
+                            </Stack>
+                        </Stack>
+                        <Box bg="gray.700" w="100%" h="100%" p={{ base: 2, md: 3 }} color="white" borderRadius={5}>
+                            <Stack spacing={3} direction="column" padding={2} overflowY="auto" height={{ base: "72vh", md: "67vh" }} width="100%">
                                 {messages.map((msg, index) => (
-                                    <Box key={index} style={{ display: 'flex', justifyContent: msg.name === name ? 'flex-end' : 'flex-start' }}>
-                                        <Box backgroundColor="gray.600" borderRadius={10} p={1.5} height="auto" maxWidth="100%" >
-                                            {msg.name === name ? (
+                                    <Box key={index} style={{ display: 'flex', justifyContent: myMsg(msg) ? 'flex-end' : 'flex-start' }}>
+                                        <Stack backgroundColor="gray.600" borderRadius={myMsg(msg) ? ("12px 0px 12px 12px") : ("0px 12px 12px 12px")} p={{ base: 1.5, md: 2 }} height="auto" maxWidth="90%" spacing={0}>
+                                            {myMsg(msg) ? (
                                                 <Stack direction="row" justifyContent="flex-end">
                                                     <Box color="gray.500" fontWeight="semibold" letterSpacing="wide" fontSize="xs" textTransform="uppercase" ml="2">
                                                         {msg.time}
                                                     </Box>
                                                     <Badge borderRadius="full" px="2" colorScheme="teal" textTransform="none">Me</Badge>
-
                                                 </Stack>
                                             ) : (
                                                 <Stack direction="row" justifyContent="flex-start">
@@ -81,104 +94,111 @@ const Chat = ({ name, room }) => {
                                                     <Box color="gray.500" fontWeight="semibold" letterSpacing="wide" fontSize="xs" textTransform="uppercase" ml="2">
                                                         {msg.time}
                                                     </Box>
-
                                                 </Stack>
-                                            )
-                                            }
+                                            )}
                                             <Stack>
-                                                <Text padding={1} fontWeight="600">{msg.message}</Text>
+                                                <Text padding={1} fontWeight="600" fontSize={{ base: "xs", sm: "sm", md: "md" }} >{msg.message}</Text>
                                             </Stack>
-                                        </Box>
+                                        </Stack>
                                     </Box>
                                 ))}
                                 <div ref={divRef}></div>
                             </Stack>
                             <Stack position="absolute" bottom="8">
                                 {userTyping && (
-                                    <Text fontWeight="600" fontStyle="italic">
+                                    <Text fontWeight="600" fontStyle="italic" fontSize={{ base: "sm", md: "md" }} ml={1
+                                    }>
                                         {`${userTyping} is typing...`}
                                     </Text>
                                 )}
                             </Stack>
                         </Box>
-                    </Flex>
-                    <Flex direction="column" width="auto">
-                        <Heading mb={6} textAlign="center"> Users</Heading>
-                        <Box bg="gray.700" w="100%" h="100%" p={2} color="white" borderRadius={10} overflowY="auto">
-                            <Stack spacing={4} direction="column" padding={4}>
-                                <List spacing={4}>
-                                    {users.map((user, index) => (
-                                        <ListItem key={index} d="flex" alignItems="center" >
-                                            <ListIcon as={FaUser} color="teal.300" />
-                                            <Text fontWeight="600">{user.name}</Text>
-                                        </ListItem>))}
-                                </List>
-                            </Stack>
-
-                        </Box>
-                    </Flex>
+                    </Stack>
+                    {windowSizeWidth > 600 && (
+                        <Stack direction="column" width="20wh" p={1}>
+                            <Heading mb={2} textAlign="center" fontSize={{ base: "11px", sm: "11px", md: "13px", lg: "15px" }}> {`Users online (${users.length})`}
+                            </Heading>
+                            <Box w="100%" h="100%" p={2} color="white" borderRadius={5}>
+                                <Stack overflowY="auto" overflowX="hidden" w="100%" height="100%" maxHeight="80vh" alignItems="center">
+                                    <Stack spacing={4} direction="column" padding={{ base: 2, md: 4 }}>
+                                        <List spacing={4}>
+                                            {users.map((user, index) => (
+                                                <ListItem key={index} d="flex" alignItems="center" >
+                                                    <ListIcon as={FaUser} color="teal.300" boxSize={{ base: "11px", md: "15px" }} />
+                                                    <Text fontWeight="600" fontSize={{ base: "10px", sm: "12px", md: "14px", lg: "16px", xl: "18px" }}>{user.name}</Text>
+                                                </ListItem>))}
+                                        </List>
+                                    </Stack>
+                                </Stack>
+                            </Box>
+                        </Stack>
+                    )}
                 </Stack>
             </Box>
-            <Box p={4} d="flex" w="100%" justifyContent="center">
-                <Stack maxWidth="850px" width="100%">
-                    <Textarea resize="none" placeholder="Type your message..." rows="3" value={message} onChange={e => setMessage(e.target.value)} variant="filled" bg="gray.700" maxLength="70" />
-                    <Button rightIcon={<FiSend />} mb={2} colorScheme="messenger" onClick={handleSubmit} type="submit">Send</Button>
+            <Box as="form" p={4} d="flex" w="100%" h="10vh" justifyContent="center">
+                <Stack width="100%" direction="row" spacing={1}>
+                    <InputGroup size={breakpointSmMd}>
+                        <Input
+                            pr="4.5rem"
+                            type="text"
+                            placeholder="Enter password"
+                            size={breakpointSmMd}
+                            bg="gray.700"
+                            value={message} onChange={e => setMessage(e.target.value)}
+                            variant="filled"
+                            maxLength={150}
+                        />
+                        <InputRightElement width="2.5rem">
+                            <IconButton
+                                colorScheme="blue"
+                                aria-label="Search database"
+                                size={breakpointSmMd}
+                                icon={<FaRegSmile />}
+                                variant="ghost"
+                            />
+                        </InputRightElement>
+                    </InputGroup>
+                    <Button rightIcon={<IoSend />} size={breakpointSmMd} mb={2} colorScheme="messenger" onClick={handleSubmit} type="submit" disabled={!message}>Send</Button>
                 </Stack>
-
             </Box>
-        </>
+        </Box>
     )
 }
 
 export default Chat;
 
 /*
- <div>
-            <div className="chat-room">
-                <div className="chat">
-                    {messages.map((msg, index) => (
-                        <div key={index} style={{ display: 'flex', justifyContent: msg.name === name ? 'flex-end' : 'flex-start' }} className="message-content">
-                            <span>{`${msg.name === name ? 'Yo' : msg.name} : ${msg.message}`} </span>
-                        </div>
-                    ))}
-                    {userTyping && (
-                        <p className="typing">
-                            {`${userTyping} is typing...`}
-                        </p>
+
+
+<Stack flex={1}>
+                        <Input placeholder="Type your message..." size={breakpointSmMd} value={message} onChange={e => setMessage(e.target.value)} variant="outline" bg="gray.700" />
+                    </Stack>
+                    <IconButton
+                        colorScheme="blue"
+                        aria-label="Search database"
+                        size={breakpointSmMd}
+                        icon={<FaRegSmile />}
+                        variant="ghost"
+                    />
+                    <Button rightIcon={<IoSend />} size={breakpointSmMd} mb={2} colorScheme="messenger" onClick={handleSubmit} type="submit" disabled={!message}>Send</Button>
+
+{windowSizeWidth > 600 && (
+                        <Stack marginTop="20px" direction="column" width={{ base: "10%" }} >
+                            <Heading mb={2} textAlign="center" fontSize={{ base: "15px", sm: "15px", md: "15px", lg: "15px" }}> {`Users online (${users.length})`}
+                            </Heading>
+                            <Box w="100%" h="100%" p={2} color="white" borderRadius={5}>
+                                <Stack overflowY="auto" overflowX="hidden" w="100%" height="100%" maxHeight="72vh" alignItems="center">
+                                    <Stack spacing={4} direction="column" padding={{ base: 2, md: 4 }}>
+                                        <List spacing={4}>
+                                            {users.map((user, index) => (
+                                                <ListItem key={index} d="flex" alignItems="center" >
+                                                    <ListIcon as={FaUser} color="teal.300" boxSize={{ base: "11px", md: "15px" }} />
+                                                    <Text fontWeight="600" fontSize={{ base: "10px", sm: "12px", md: "14px", lg: "16px", xl: "18px" }}>{user.name}</Text>
+                                                </ListItem>))}
+                                        </List>
+                                    </Stack>
+                                </Stack>
+                            </Box>
+                        </Stack>
                     )}
-                    <div ref={divRef}></div>
-                </div>
-                <div className="users-online">
-                    <span style={{ fontWeight: '700' }}>Users Online</span>
-                    <ul>
-                        {users.map((user, index) => (<li key={index}> {user.name}</li>))}
-                    </ul>
-                </div>
-            </div>
-
-            <form>
-                <label htmlFor="">Write a message</label>
-                <textarea name="" id="" cols="30" rows="10" value={message} onChange={e => setMessage(e.target.value)} />
-                <button onClick={handleSubmit} type="submit">Send</button>
-            </form>
-        </div>
-
-
-        ///// input send
-        <form onSubmit={handleSubmit}>
-                    <InputGroup size="lg">
-                        <Input
-                            type="text"
-                            placeholder="Type your message..."
-                            bg="gray.700"
-                            maxLength="50"
-                            value={message} onChange={e => setMessage(e.target.value)}
-                        />
-                        <InputRightElement width="7rem">
-                            <Button h="1.75rem" size="md" rightIcon={<FiSend />} colorScheme="messenger" type="submit" >
-                                Send
-                        </Button>
-                        </InputRightElement>
-                    </InputGroup>
-                </form>
- */
+*/
