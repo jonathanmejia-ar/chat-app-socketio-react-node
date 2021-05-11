@@ -141,7 +141,7 @@ const Chat = ({ name, room }) => {
                         <Input
                             pr="4.5rem"
                             type="text"
-                            placeholder="Enter password"
+                            placeholder="Type a message..."
                             size={breakpointSmMd}
                             bg="gray.700"
                             value={message} onChange={e => setMessage(e.target.value)}
