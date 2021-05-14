@@ -3,7 +3,6 @@ import { Badge, Box, Button, Heading, IconButton, Input, InputGroup, InputRightE
 import { FaUser, FaRegSmile } from "react-icons/fa";
 import { IoSend } from "react-icons/io5";
 import socket from './Socket';
-import '../App.css';
 import useWindowDimensions from '../hooks/useWindowDimensions';
 import chatSound from '../assets/sounds/sound.mp3';
 
@@ -166,39 +165,3 @@ const Chat = ({ name, room }) => {
 }
 
 export default Chat;
-
-/*
-
-
-<Stack flex={1}>
-                        <Input placeholder="Type your message..." size={breakpointSmMd} value={message} onChange={e => setMessage(e.target.value)} variant="outline" bg="gray.700" />
-                    </Stack>
-                    <IconButton
-                        colorScheme="blue"
-                        aria-label="Search database"
-                        size={breakpointSmMd}
-                        icon={<FaRegSmile />}
-                        variant="ghost"
-                    />
-                    <Button rightIcon={<IoSend />} size={breakpointSmMd} mb={2} colorScheme="messenger" onClick={handleSubmit} type="submit" disabled={!message}>Send</Button>
-
-{windowSizeWidth > 600 && (
-                        <Stack marginTop="20px" direction="column" width={{ base: "10%" }} >
-                            <Heading mb={2} textAlign="center" fontSize={{ base: "15px", sm: "15px", md: "15px", lg: "15px" }}> {`Users online (${users.length})`}
-                            </Heading>
-                            <Box w="100%" h="100%" p={2} color="white" borderRadius={5}>
-                                <Stack overflowY="auto" overflowX="hidden" w="100%" height="100%" maxHeight="72vh" alignItems="center">
-                                    <Stack spacing={4} direction="column" padding={{ base: 2, md: 4 }}>
-                                        <List spacing={4}>
-                                            {users.map((user, index) => (
-                                                <ListItem key={index} d="flex" alignItems="center" >
-                                                    <ListIcon as={FaUser} color="teal.300" boxSize={{ base: "11px", md: "15px" }} />
-                                                    <Text fontWeight="600" fontSize={{ base: "10px", sm: "12px", md: "14px", lg: "16px", xl: "18px" }}>{user.name}</Text>
-                                                </ListItem>))}
-                                        </List>
-                                    </Stack>
-                                </Stack>
-                            </Box>
-                        </Stack>
-                    )}
-*/

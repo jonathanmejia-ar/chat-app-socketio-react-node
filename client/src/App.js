@@ -1,6 +1,5 @@
 import { Button, Heading, Input, Select, Stack } from '@chakra-ui/react';
 import { useState } from 'react';
-import './App.css';
 import Chat from './components/Chat';
 
 function App() {
@@ -22,7 +21,7 @@ function App() {
   };
 
   return (
-    <div className="App">
+    <div>
       {
         loggedIn ? (<Chat name={user} room={room} />) : (
           <form onSubmit={login}>
@@ -48,16 +47,3 @@ function App() {
 };
 
 export default App;
-
-/*
-<form onSubmit={login}>
-              <label htmlFor="">Enter your name</label>
-              <input value={user} onChange={e => setUser(e.target.value)} />
-              <select name="select" value={room} onChange={e => setRoom(e.target.value)}>
-                <option value="room1">Room 1</option>
-                <option value="room2">Room 2</option>
-                <option value="room3">Room 3</option>
-              </select>
-              <button onClick={login}>Submit</button>
-            </form>
-*/
