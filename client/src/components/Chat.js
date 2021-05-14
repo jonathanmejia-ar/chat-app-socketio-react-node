@@ -60,8 +60,8 @@ const Chat = ({ name, room }) => {
         setMessage('');
     };
 
-    //validate if it's my message
-    const myMsg = (msg) => msg.name === name;
+    //validate if the message was written by the user himself or not
+    const ownUserMsg = (msg) => msg.name === name;
     //responsive breakpoint
     const breakpointSmMd = useBreakpointValue({ base: "sm", md: "md" })
 
@@ -78,9 +78,9 @@ const Chat = ({ name, room }) => {
                         <Box bg="gray.700" w="100%" h="100%" p={{ base: 2, md: 3 }} color="white" borderRadius={5}>
                             <Stack spacing={3} direction="column" padding={2} overflowY="auto" height={{ base: "72vh", md: "67vh" }} width="100%">
                                 {messages.map((msg, index) => (
-                                    <Box key={index} style={{ display: 'flex', justifyContent: myMsg(msg) ? 'flex-end' : 'flex-start' }}>
-                                        <Stack backgroundColor="gray.600" borderRadius={myMsg(msg) ? ("12px 0px 12px 12px") : ("0px 12px 12px 12px")} p={{ base: 1.5, md: 2 }} height="auto" maxWidth="90%" spacing={0}>
-                                            {myMsg(msg) ? (
+                                    <Box key={index} style={{ display: 'flex', justifyContent: ownUserMsg(msg) ? 'flex-end' : 'flex-start' }}>
+                                        <Stack backgroundColor="gray.600" borderRadius={ownUserMsg(msg) ? ("12px 0px 12px 12px") : ("0px 12px 12px 12px")} p={{ base: 1.5, md: 2 }} height="auto" maxWidth="90%" spacing={0}>
+                                            {ownUserMsg(msg) ? (
                                                 <Stack direction="row" justifyContent="flex-end">
                                                     <Box color="gray.500" fontWeight="semibold" letterSpacing="wide" fontSize="xs" textTransform="uppercase" ml="2">
                                                         {msg.time}
@@ -162,6 +162,6 @@ const Chat = ({ name, room }) => {
             </Box>
         </Box>
     )
-}
+};
 
 export default Chat;
