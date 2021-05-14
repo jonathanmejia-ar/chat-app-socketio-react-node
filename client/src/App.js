@@ -21,7 +21,7 @@ function App() {
   };
 
   return (
-    <div>
+    <>
       {
         loggedIn ? (<Chat name={user} room={room} />) : (
           <form onSubmit={login}>
@@ -42,7 +42,7 @@ function App() {
           </form>
         )
       }
-    </div>
+    </>
   );
 };
 
